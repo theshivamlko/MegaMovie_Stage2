@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/most_popular"
+        android:title="@string/menu_str_popular" />
+    <item
+        android:id="@+id/high_rate"
+        android:title="@string/menu_str_rating" />
+    <item
+        android:id="@+id/favorites"
+        android:icon="@drawable/ic_collections_bookmark"
+        android:title="@string/favorites"
+        app:showAsAction="ifRoom" />
+
+</menu>

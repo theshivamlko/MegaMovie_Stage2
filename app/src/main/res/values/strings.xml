@@ -1,0 +1,51 @@
+<resources>
+    <string name="app_name">MegaMovies</string>
+    <string name="bookmarks">Bookmarks</string>
+
+    <!-- Paths -->
+    <string name="fontPath">fonts/terminator.ttf</string>
+
+    <!--Shared transition name-->
+    <string name="poster_transition_name">poster</string>
+
+    <!-- Toast Messages -->
+    <string name="somethingGoneWrong">Something gone wrong!</string>
+    <string name="noDataFound">No data found, Try again later</string>
+    <string name="error_network">Cannot connect to Internet.Please check your connection!</string>
+    <string name="error_server">The server could not be found. Please try again after some time!</string>
+    <string name="error_parse">Parsing error! Please try again after some time!</string>
+    <string name="error_auth">Cannot connect to Internet.Please check your connection!</string>
+    <string name="error_timeout">Connection TimeOut!Please check your internet connection.</string>
+
+
+    <!-- API Param keys -->
+    <string name="key_page_no">page</string>
+    <string name="key_api_key">api_key</string>
+    <string name="key_results">results</string>
+    <string name="key_cast">cast</string>
+    <string name="key_casts">casts</string>
+    <string name="key_video">videos</string>
+    <string name="key_reviews">reviews</string>
+    <string name="param_video_image_ext">/0.jpg</string>
+    <string name="uri_key_youtube">vnd.youtube:</string>
+
+    <!-- Menu title-->
+    <string name="menu_str_popular">Sort by Popularity</string>
+    <string name="menu_str_rating">Sort by Rating</string>
+    <string name="bookmark">Bookmark</string>
+    <string name="favorites">Favorites</string>
+
+    <!--Labels-->
+    <string name="cast">Cast</string>
+    <string name="description">Description</string>
+    <string name="key_key">key</string>
+    <string name="no_app_found">No app found to handle video</string>
+    <string name="trailers">Trailers</string>
+    <string name="reviews">Reviews</string>
+    <string name="loading">Loading&#8230;</string>
+    <string name="checkout">Check out this trailer of </string>
+    <string name="share_trailer">Share Trailer</string>
+    <string name="intent_type">text/plain</string>
+
+
+</resources>
