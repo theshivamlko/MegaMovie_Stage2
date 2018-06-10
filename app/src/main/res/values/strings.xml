@@ -28,6 +28,7 @@
     <string name="key_reviews">reviews</string>
     <string name="param_video_image_ext">/0.jpg</string>
     <string name="uri_key_youtube">vnd.youtube:</string>
+    <string name="key_key">key</string>
 
     <!-- Menu title-->
     <string name="menu_str_popular">Sort by Popularity</string>
@@ -38,7 +39,6 @@
     <!--Labels-->
     <string name="cast">Cast</string>
     <string name="description">Description</string>
-    <string name="key_key">key</string>
     <string name="no_app_found">No app found to handle video</string>
     <string name="trailers">Trailers</string>
     <string name="reviews">Reviews</string>

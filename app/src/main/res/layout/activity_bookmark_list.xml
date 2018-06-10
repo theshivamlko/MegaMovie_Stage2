@@ -13,7 +13,7 @@
             android:background="@color/white"
             android:orientation="vertical"
             android:isScrollContainer="true"
-            tools:context=".Activities.MovieListActivity">
+            tools:context=".activities.MovieListActivity">
 
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/ryc_movie_list"
