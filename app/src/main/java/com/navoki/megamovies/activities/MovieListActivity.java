@@ -230,8 +230,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             global.saveSortBy(AppConstants.SHAREDPREF_VALUE_POPULAR);
             if (Util.checkConnection(context))
                 getMovieList(AppConstants.SHAREDPREF_VALUE_POPULAR);
-            else
-                viewModel.setMovieLiveData((MutableLiveData<List<MovieData>>) appDatabase.movieDao().getMovieTaskList(AppConstants.SHAREDPREF_VALUE_POPULAR));
+
         } else if (id == R.id.high_rate) {
             mainURL = AppConstants.API_MOVIE_HIGH_RATE_LIST;
             paging = 1;
@@ -240,8 +239,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             global.saveSortBy(AppConstants.SHAREDPREF_VALUE_RATING);
             if (Util.checkConnection(context))
                 getMovieList(AppConstants.SHAREDPREF_VALUE_RATING);
-            else
-                viewModel.setMovieLiveData((MutableLiveData<List<MovieData>>) appDatabase.movieDao().getMovieTaskList(AppConstants.SHAREDPREF_VALUE_RATING));
+
         } else if (id == R.id.favorites) {
             Util.finishEntryAnimation(context, new Intent(context, BookmarksActivity.class));
         }
