@@ -1,6 +1,7 @@
 package com.navoki.megamovies.database;
 
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.persistence.room.Dao;
 import android.arch.persistence.room.Insert;
 import android.arch.persistence.room.OnConflictStrategy;
@@ -31,7 +32,7 @@ public interface MovieDao {
     @Update(onConflict = OnConflictStrategy.REPLACE)
     void updateMovie(MovieData movieData);
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert
     void insertAll(List<MovieData> movieDataList);
 
     @Query("DELETE FROM movies where sortby=:sortby")

@@ -2,6 +2,7 @@ package com.navoki.megamovies.activities;
 
 import android.app.ProgressDialog;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -31,6 +32,8 @@ import com.navoki.megamovies.adapters.MovieListAdapter;
 import com.navoki.megamovies.BuildConfig;
 import com.navoki.megamovies.callbacks.OnAdapterListener;
 import com.navoki.megamovies.database.AppDatabase;
+import com.navoki.megamovies.database.MovieListViewFactory;
+import com.navoki.megamovies.database.MovieListViewModel;
 import com.navoki.megamovies.models.MovieData;
 import com.navoki.megamovies.R;
 import com.navoki.megamovies.utils.AppConstants;
@@ -59,9 +62,10 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
     private MovieListAdapter movieListAdapter;
     private ProgressDialog progressDialog;
     private String mainURL;
-    private ListViewModel viewModel;
+    private MovieListViewModel viewModel;
     private StringRequest stringRequest = null;
-    private String sortby = null;
+    private String sortby = AppConstants.SHAREDPREF_VALUE_POPULAR;
+    private AppDatabase appDatabase = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +87,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         mainURL = AppConstants.API_MOVIE_POPULAR_LIST;
         sortby = global.getSortBy();
         paging = global.getPaging();
+        appDatabase = AppDatabase.getInstance(context);
 
         rycMovieList.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
@@ -122,18 +127,10 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
                     JSONArray dataArray = jsonObject.getJSONArray(getString(R.string.key_results));
                     Log.e("Repsonse", dataArray.toString());
                     if (dataArray.length() > 0) {
-                        /*    if (paging == 1)*/
-                        //       AppDatabase.getInstance(context).movieDao().deleteAll(sortby);
-                      /*  List<MovieData>  abc = AppDatabase.getInstance(context).movieDao().getAll(sortby);
 
-                        for (MovieData m:abc) {
-                        Log.e("GEL ALL",m.getTitle()+" "+m.getId()+" "+m.getSortby()+" ");
-                        }
-*/
-
+                        global.saveSortBy(sort);
+                        sortby = sort;
                         Gson gson = new Gson();
-                      /*  Type listType = new TypeToken<ArrayList<MovieData>>() {
-                        }.getType();*/
                         ArrayList<MovieData> list = new ArrayList<>();
                         for (int i = 0; i < dataArray.length(); i++) {
                             MovieData movieData = gson.fromJson(dataArray.getJSONObject(i).toString(), MovieData.class);
@@ -141,9 +138,8 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
                             list.add(movieData);
                         }
                         Log.e("Repsonse", "===" + list.size() + " " + sort);
-                        sortby = sort;
-                        global.saveSortBy(sortby);
-                        viewModel.insertListLiveData(list);
+
+                        appDatabase.movieDao().insertAll(list);
 
                     } else
                         Toast.makeText(context, getString(R.string.somethingGoneWrong), Toast.LENGTH_SHORT).show();
@@ -167,8 +163,9 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
     }
 
     private void setUpViewModel() {
-        viewModel = ViewModelProviders.of((FragmentActivity) context).get(ListViewModel.class);
-        viewModel.getListLiveData(sortby).observeForever(observer);
+        MovieListViewFactory factory = new MovieListViewFactory(appDatabase, sortby);
+        viewModel = ViewModelProviders.of((FragmentActivity) context, factory).get(MovieListViewModel.class);
+        viewModel.getMovieLiveData().observeForever(observer);
     }
 
     Observer<List<MovieData>> observer = new Observer<List<MovieData>>() {
@@ -177,7 +174,6 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             Log.e("List", movieList.size() + "--" + (movieDataList.size() - 1) + " " + sortby);
             if (movieDataList.size() != 0) {
                 movieList.addAll(movieDataList.subList(movieList.size(), movieDataList.size() - 1));
-                Log.e("List2", movieList.size() + "===");
                 if (movieListAdapter == null) {
                     movieListAdapter = new MovieListAdapter(context, movieList);
                     rycMovieList.setAdapter(movieListAdapter);
@@ -193,9 +189,6 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             paging = 1;
         else
             --paging;
-/*
-        sortby=sortby.equals(AppConstants.SHAREDPREF_VALUE_POPULAR)?AppConstants.SHAREDPREF_VALUE_RATING
-                :AppConstants.SHAREDPREF_VALUE_POPULAR;*/
     }
 
 
@@ -238,8 +231,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             if (Util.checkConnection(context))
                 getMovieList(AppConstants.SHAREDPREF_VALUE_POPULAR);
             else
-                setUpViewModel();
-
+                viewModel.setMovieLiveData((MutableLiveData<List<MovieData>>) appDatabase.movieDao().getMovieTaskList(AppConstants.SHAREDPREF_VALUE_POPULAR));
         } else if (id == R.id.high_rate) {
             mainURL = AppConstants.API_MOVIE_HIGH_RATE_LIST;
             paging = 1;
@@ -249,8 +241,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             if (Util.checkConnection(context))
                 getMovieList(AppConstants.SHAREDPREF_VALUE_RATING);
             else
-                setUpViewModel();
-
+                viewModel.setMovieLiveData((MutableLiveData<List<MovieData>>) appDatabase.movieDao().getMovieTaskList(AppConstants.SHAREDPREF_VALUE_RATING));
         } else if (id == R.id.favorites) {
             Util.finishEntryAnimation(context, new Intent(context, BookmarksActivity.class));
         }

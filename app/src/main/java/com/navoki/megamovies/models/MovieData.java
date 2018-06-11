@@ -28,8 +28,10 @@ public class MovieData implements Parcelable {
     private int uid;
 */
 
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     @NonNull
+    private int uid;
+
     private String id;
     private String title, overview, release_date, poster_path, vote_average,
             original_language, backdrop_path, trailer;
@@ -57,13 +59,13 @@ public class MovieData implements Parcelable {
     public MovieData() {
     }
 
-   /* public int getUid() {
+    public int getUid() {
         return uid;
     }
 
     public void setUid(int uid) {
         this.uid = uid;
-    }*/
+    }
 
     public int getIsfavorite() {
         return isfavorite;

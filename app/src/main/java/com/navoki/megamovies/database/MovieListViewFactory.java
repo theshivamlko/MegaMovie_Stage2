@@ -19,6 +19,6 @@ public class MovieListViewFactory extends ViewModelProvider.NewInstanceFactory {
     @NonNull
     @Override
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
-        return (T) new MovieViewModel(appDatabase,id);
+        return (T) new MovieListViewModel(appDatabase,sortBy);
     }
 }
