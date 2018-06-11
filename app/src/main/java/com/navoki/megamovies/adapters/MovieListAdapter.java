@@ -73,7 +73,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         final MovieHolder movieHolder = (MovieHolder) holder;
         final MovieData movieData = movieList.get(position);
 
-        Log.e("Adapter",movieData.getTitle()+" "+movieData.getIsfavorite()+" "+movieData.getId());
+        Log.e("Adapter",movieData.getTitle()+" "+movieData.getIsfavorite()+" "+movieData.getId()+" ");
         movieHolder.tvTitle.setText(movieData.getTitle());
         Picasso.get().load((BuildConfig.POSTER_BASE_URL + movieData.getPoster_path()).trim())
                 .placeholder(R.drawable.placeholder_image)

@@ -14,12 +14,12 @@ import java.util.List;
 /**
  * Created by Shivam Srivastava on 6/9/2018.
  */
-public class BookmarkListViewModel extends AndroidViewModel {
+public class FavoriteViewModel extends AndroidViewModel {
 
     private LiveData<List<MovieData>> listLiveData;
     private AppDatabase appDatabase;
 
-    public BookmarkListViewModel(@NonNull Application application) {
+    public FavoriteViewModel(@NonNull Application application) {
         super(application);
         Log.e("MainVie", "Retive List");
         appDatabase = AppDatabase.getInstance(this.getApplication());
@@ -29,6 +29,4 @@ public class BookmarkListViewModel extends AndroidViewModel {
     public LiveData<List<MovieData>> getFavListLiveData() {
         return listLiveData;
     }
-
-
 }

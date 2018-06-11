@@ -62,6 +62,7 @@ public class Global extends Application {
     }
 
     public String getSortBy() {
-        return sharedPreferences.getString(AppConstants.SHAREDPREF_KEY_SORT_URL, AppConstants.API_MOVIE_POPULAR_LIST);
+        return sharedPreferences.getString(AppConstants.SHAREDPREF_KEY_SORT_URL,
+                AppConstants.SHAREDPREF_VALUE_POPULAR);
     }
 }

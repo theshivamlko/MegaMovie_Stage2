@@ -21,7 +21,7 @@ import com.navoki.megamovies.callbacks.OnAdapterListener;
 import com.navoki.megamovies.models.MovieData;
 import com.navoki.megamovies.R;
 import com.navoki.megamovies.utils.AppConstants;
-import com.navoki.megamovies.database.BookmarkListViewModel;
+import com.navoki.megamovies.database.FavoriteViewModel;
 import com.navoki.megamovies.database.ListViewModel;
 
 import java.util.ArrayList;
@@ -54,15 +54,15 @@ public class BookmarksActivity extends AppCompatActivity implements OnAdapterLis
     }
 
     private void setUpViewModel() {
-        BookmarkListViewModel bookmarkListViewModel = ViewModelProviders.of((FragmentActivity) context).get(BookmarkListViewModel.class);
+        FavoriteViewModel bookmarkListViewModel = ViewModelProviders.of((FragmentActivity) context).get(FavoriteViewModel.class);
         bookmarkListViewModel.getFavListLiveData().observe(BookmarksActivity.this, new Observer<List<MovieData>>() {
             @Override
             public void onChanged(@Nullable List<MovieData> movieDataList) {
                 MovieListAdapter movieListAdapter = new MovieListAdapter(context, new ArrayList<MovieData>(movieDataList));
                 rycMovieList.setAdapter(movieListAdapter);
                 Log.e("Book", movieDataList.size() + " book");
-                for(MovieData movieData:movieDataList)
-                    Log.e("Movie",movieData.getIsfavorite()+" "+movieData.getTitle());
+                for (MovieData movieData : movieDataList)
+                    Log.e("Movie", movieData.getIsfavorite() + " " + movieData.getTitle());
                 if (movieDataList.size() == 0)
                     Toast.makeText(context, getString(R.string.noDataFound), Toast.LENGTH_SHORT).show();
             }

@@ -34,11 +34,9 @@ public class MovieData implements Parcelable {
     private String title, overview, release_date, poster_path, vote_average,
             original_language, backdrop_path, trailer;
 
-  //  private int isfavorite;
+    private int isfavorite;
     private String sortby;
 
-    @Nullable
-    private String category;
 
     @ColumnInfo(name = "genrelist")
     @TypeConverters(GenreConvertor.class)
@@ -67,12 +65,12 @@ public class MovieData implements Parcelable {
         this.uid = uid;
     }*/
 
-    public String getCategory() {
-        return category;
+    public int getIsfavorite() {
+        return isfavorite;
     }
 
-    public void setCategory(String category) {
-        this.category = category;
+    public void setIsfavorite(int isfavorite) {
+        this.isfavorite = isfavorite;
     }
 
     public String getSortby() {

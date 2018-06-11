@@ -42,6 +42,7 @@ import com.navoki.megamovies.database.AppDatabase;
 import com.navoki.megamovies.database.MovieViewModel;
 import com.navoki.megamovies.database.MovieViewModelFactory;
 import com.navoki.megamovies.models.CastModel;
+import com.navoki.megamovies.models.FavoriteData;
 import com.navoki.megamovies.models.GenreModel;
 import com.navoki.megamovies.models.MovieData;
 import com.navoki.megamovies.models.ReviewModel;
@@ -107,7 +108,7 @@ public class DetailsActivity extends AppCompatActivity {
     private ProgressDialog progressDialog;
     private TrailerPagerAdapter sectionsPagerAdapter;
     private AppDatabase appDatabase;
-    private int isFavorite;
+    private boolean isFavorite;
     private MenuItem bookmarkMenuItem;
     private MovieViewModel viewModel;
     private boolean firsTime = true;
@@ -381,8 +382,6 @@ public class DetailsActivity extends AppCompatActivity {
             }
         });
         global.addToRequestQueue(stringRequest);
-
-
     }
 
     private void populateCastList() {
@@ -439,19 +438,41 @@ public class DetailsActivity extends AppCompatActivity {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                int flag = movieData.getCategory() == AppConstants.TRUE ? AppConstants.FALSE
-                        : AppConstants.TRUE;
-
-                Log.e("Details", "setBookmark " + flag + " " + movieData.getId());
-                movieData.setIsfavorite(flag);
-                appDatabase.movieDao().updateMovie(movieData);
-                isFavorite = flag;
+                Log.e("Details", "setBookmark " + isFavorite + " " + movieData.getId());
+                if (isFavorite)
+                    appDatabase.favoriteDao().delete(movieData.getId());
+                else {
+                    FavoriteData favoriteData = new FavoriteData();
+                    favoriteData.setId(movieData.getId());
+                    appDatabase.favoriteDao().insert(favoriteData);
+                }
+                isFavorite = !isFavorite;
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
                         checkBookmarkIcon();
                     }
                 });
+            }
+        });
+    }
+
+    private void checkBookmarkIcon() {
+        AppExecutors.getInstance().diskIO().execute(new Runnable() {
+            @Override
+            public void run() {
+                final FavoriteData data = appDatabase.favoriteDao().checkFav(movieData.getId());
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (data != null) {
+                            bookmarkMenuItem.setIcon(R.drawable.ic_star_full);
+                            isFavorite = true;
+                        } else
+                            bookmarkMenuItem.setIcon(R.drawable.ic_star_border);
+                    }
+                });
+
             }
         });
     }
@@ -465,11 +486,9 @@ public class DetailsActivity extends AppCompatActivity {
             public void onChanged(@Nullable MovieData data) {
 
                 if (null != data) {
-                    //   uid = data.getUid();
                     DetailsActivity.this.movieData = data;
                     Log.e("MSGFav1", movieData.getIsfavorite() + " " + movieData.getId());
                     Log.e("MSGFav2", movieData.getCastList() + "--");
-                    isFavorite = movieData.getIsfavorite();
                     if (firsTime)
                         populateUI();
                     if (movieData.getTrailerList() == null)
@@ -498,13 +517,6 @@ public class DetailsActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    private void checkBookmarkIcon() {
-        if (isFavorite == AppConstants.TRUE)
-            bookmarkMenuItem.setIcon(R.drawable.ic_star_full);
-        else
-            bookmarkMenuItem.setIcon(R.drawable.ic_star_border);
     }
 
     @Override

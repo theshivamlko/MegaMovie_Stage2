@@ -21,12 +21,12 @@ public class ListViewModel extends AndroidViewModel {
 
     public ListViewModel(@NonNull Application application) {
         super(application);
-        Log.e("MainVie", "Retive List");
+
         appDatabase = AppDatabase.getInstance(this.getApplication());
-        listLiveData = appDatabase.movieDao().getMovieTaskList();
     }
 
-    public LiveData<List<MovieData>> getListLiveData() {
+    public LiveData<List<MovieData>> getListLiveData(String sortby) {
+        listLiveData = appDatabase.movieDao().getMovieTaskList(sortby);
         return listLiveData;
     }
 

@@ -1,6 +1,7 @@
 package com.navoki.megamovies.activities;
 
 import android.app.ProgressDialog;
+import android.arch.lifecycle.LiveData;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
@@ -26,7 +27,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import com.navoki.megamovies.adapters.MovieListAdapter;
 import com.navoki.megamovies.BuildConfig;
 import com.navoki.megamovies.callbacks.OnAdapterListener;
@@ -42,7 +42,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,6 +61,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
     private String mainURL;
     private ListViewModel viewModel;
     private StringRequest stringRequest = null;
+    private String sortby = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +81,8 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
 
         movieList = new ArrayList<>();
         mainURL = AppConstants.API_MOVIE_POPULAR_LIST;
+        sortby = global.getSortBy();
+        paging = global.getPaging();
 
         rycMovieList.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
@@ -89,21 +91,22 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
                 Log.e("Pafi", paging + " " + lastVisibleItemPosition + " " + (movieListAdapter.getItemCount()));
                 if (lastVisibleItemPosition == movieListAdapter.getItemCount() - 1) {
                     ++paging;
-                    getMovieList();
+                    getMovieList(sortby);
                 }
             }
         });
 
-        mainURL = global.getSortBy();
-        paging = global.getPaging();
         setUpViewModel();
+
+        if (paging == 1 && Util.checkConnection(context))
+            getMovieList(sortby);
     }
 
 
     /*
      * get list of latest movies
      * */
-    private void getMovieList() {
+    private void getMovieList(final String sort) {
 
         progressDialog.show();
         Uri.Builder params = new Uri.Builder();
@@ -117,21 +120,36 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
                 try {
                     JSONObject jsonObject = new JSONObject(response);
                     JSONArray dataArray = jsonObject.getJSONArray(getString(R.string.key_results));
-                    Log.e("URL2", stringRequest.getUrl());
+                    Log.e("Repsonse", dataArray.toString());
                     if (dataArray.length() > 0) {
-                        if (paging == 1)
-                            AppDatabase.getInstance(context).movieDao().deleteAll();
+                        /*    if (paging == 1)*/
+                        //       AppDatabase.getInstance(context).movieDao().deleteAll(sortby);
+                      /*  List<MovieData>  abc = AppDatabase.getInstance(context).movieDao().getAll(sortby);
+
+                        for (MovieData m:abc) {
+                        Log.e("GEL ALL",m.getTitle()+" "+m.getId()+" "+m.getSortby()+" ");
+                        }
+*/
+
                         Gson gson = new Gson();
-                        Type listType = new TypeToken<ArrayList<MovieData>>() {
-                        }.getType();
-                        ArrayList<MovieData> list = gson.fromJson(dataArray.toString(), listType);
+                      /*  Type listType = new TypeToken<ArrayList<MovieData>>() {
+                        }.getType();*/
+                        ArrayList<MovieData> list = new ArrayList<>();
+                        for (int i = 0; i < dataArray.length(); i++) {
+                            MovieData movieData = gson.fromJson(dataArray.getJSONObject(i).toString(), MovieData.class);
+                            movieData.setSortby(sort);
+                            list.add(movieData);
+                        }
+                        Log.e("Repsonse", "===" + list.size() + " " + sort);
+                        sortby = sort;
+                        global.saveSortBy(sortby);
                         viewModel.insertListLiveData(list);
 
                     } else
                         Toast.makeText(context, getString(R.string.somethingGoneWrong), Toast.LENGTH_SHORT).show();
                     progressDialog.dismiss();
                 } catch (JSONException e) {
-                    resetPaging();
+                    reset();
                     progressDialog.dismiss();
                     Toast.makeText(context, getString(R.string.somethingGoneWrong), Toast.LENGTH_SHORT).show();
                     e.printStackTrace();
@@ -140,7 +158,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                resetPaging();
+                reset();
                 progressDialog.dismiss();
                 Util.showError(error, context);
             }
@@ -150,32 +168,34 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
 
     private void setUpViewModel() {
         viewModel = ViewModelProviders.of((FragmentActivity) context).get(ListViewModel.class);
-        viewModel.getListLiveData().observe(MovieListActivity.this, new Observer<List<MovieData>>() {
-            @Override
-            public void onChanged(@Nullable List<MovieData> movieDataList) {
-                Log.e("List", movieList.size() + "--" + (movieDataList.size() - 1));
-                if (movieDataList.size() != 0) {
-                    movieList.addAll(movieDataList.subList(movieList.size(), movieDataList.size() - 1));
-                    Log.e("List2", movieList.size() + "===");
-                    if (movieListAdapter == null) {
-                        movieListAdapter = new MovieListAdapter(context, movieList);
-                        rycMovieList.setAdapter(movieListAdapter);
-                    } else
-                        movieListAdapter.notifyDataSetChanged();
-//Avengers: Infinity War 0 299536
-                    global.savePaging(AppConstants.SHAREDPREF_KEY_PAGE, paging);
-                } else
-                    getMovieList();
-
-            }
-        });
+        viewModel.getListLiveData(sortby).observeForever(observer);
     }
 
-    private void resetPaging() {
+    Observer<List<MovieData>> observer = new Observer<List<MovieData>>() {
+        @Override
+        public void onChanged(@Nullable List<MovieData> movieDataList) {
+            Log.e("List", movieList.size() + "--" + (movieDataList.size() - 1) + " " + sortby);
+            if (movieDataList.size() != 0) {
+                movieList.addAll(movieDataList.subList(movieList.size(), movieDataList.size() - 1));
+                Log.e("List2", movieList.size() + "===");
+                if (movieListAdapter == null) {
+                    movieListAdapter = new MovieListAdapter(context, movieList);
+                    rycMovieList.setAdapter(movieListAdapter);
+                } else
+                    movieListAdapter.notifyDataSetChanged();
+                global.savePaging(AppConstants.SHAREDPREF_KEY_PAGE, paging);
+            }
+        }
+    };
+
+    private void reset() {
         if (paging == 0)
             paging = 1;
         else
             --paging;
+/*
+        sortby=sortby.equals(AppConstants.SHAREDPREF_VALUE_POPULAR)?AppConstants.SHAREDPREF_VALUE_RATING
+                :AppConstants.SHAREDPREF_VALUE_POPULAR;*/
     }
 
 
@@ -214,16 +234,22 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             paging = 1;
             movieList = new ArrayList<>();
             movieListAdapter = null;
-            global.saveSortBy(mainURL);
-            getMovieList();
+            global.saveSortBy(AppConstants.SHAREDPREF_VALUE_POPULAR);
+            if (Util.checkConnection(context))
+                getMovieList(AppConstants.SHAREDPREF_VALUE_POPULAR);
+            else
+                setUpViewModel();
 
         } else if (id == R.id.high_rate) {
             mainURL = AppConstants.API_MOVIE_HIGH_RATE_LIST;
             paging = 1;
             movieList = new ArrayList<>();
             movieListAdapter = null;
-            global.saveSortBy(mainURL);
-            getMovieList();
+            global.saveSortBy(AppConstants.SHAREDPREF_VALUE_RATING);
+            if (Util.checkConnection(context))
+                getMovieList(AppConstants.SHAREDPREF_VALUE_RATING);
+            else
+                setUpViewModel();
 
         } else if (id == R.id.favorites) {
             Util.finishEntryAnimation(context, new Intent(context, BookmarksActivity.class));
