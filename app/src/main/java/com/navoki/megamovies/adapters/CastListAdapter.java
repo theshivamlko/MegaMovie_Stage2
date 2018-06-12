@@ -7,8 +7,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import com.navoki.megamovies.BuildConfig;
-import com.navoki.megamovies.models.CastModel;
 import com.navoki.megamovies.R;
+import com.navoki.megamovies.models.CastModel;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -77,6 +77,5 @@ public class CastListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
     public int getItemViewType(int position) {
         return position;
     }
-
 
 }

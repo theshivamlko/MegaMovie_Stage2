@@ -25,7 +25,13 @@
 
         </activity>
         <activity android:name=".activities.MovieListActivity" />
-        <activity android:name=".activities.BookmarksActivity" />
+
+        <activity android:name=".activities.BookmarksActivity"
+            android:parentActivityName=".activities.MovieListActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".activities.MovieListActivity" />
+        </activity>
         <activity
             android:name=".activities.DetailsActivity"
             android:theme="@style/AppTheme.NoActionBar"

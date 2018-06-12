@@ -4,29 +4,26 @@ import android.app.Application;
 import android.arch.lifecycle.AndroidViewModel;
 import android.arch.lifecycle.LiveData;
 import android.support.annotation.NonNull;
-import android.util.Log;
 
-import com.navoki.megamovies.database.AppDatabase;
-import com.navoki.megamovies.models.MovieData;
+import com.navoki.megamovies.models.BookmarkData;
 
 import java.util.List;
 
 /**
  * Created by Shivam Srivastava on 6/9/2018.
  */
-public class FavoriteViewModel extends AndroidViewModel {
+public class BookmarkViewModel extends AndroidViewModel {
 
-    private LiveData<List<MovieData>> listLiveData;
+    private LiveData<List<BookmarkData>> listLiveData;
     private AppDatabase appDatabase;
 
-    public FavoriteViewModel(@NonNull Application application) {
+    public BookmarkViewModel(@NonNull Application application) {
         super(application);
-        Log.e("MainVie", "Retive List");
         appDatabase = AppDatabase.getInstance(this.getApplication());
-        listLiveData = appDatabase.movieDao().getFavoriteList();
+        listLiveData = appDatabase.favoriteDao().getFavList();
     }
 
-    public LiveData<List<MovieData>> getFavListLiveData() {
+    public LiveData<List<BookmarkData>> getFavListLiveData() {
         return listLiveData;
     }
 }

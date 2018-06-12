@@ -49,8 +49,8 @@ public class Global extends Application {
         return sharedPreferences;
     }
 
-    public void savePaging(String key, int page) {
-        sharedPreferences.edit().putInt(key, page).apply();
+    public void savePaging(int page) {
+        sharedPreferences.edit().putInt(AppConstants.SHAREDPREF_KEY_PAGE, page).apply();
     }
 
     public int getPaging() {
@@ -65,6 +65,7 @@ public class Global extends Application {
         return sharedPreferences.getString(AppConstants.SHAREDPREF_KEY_SORT_KEY,
                 AppConstants.SHAREDPREF_VALUE_POPULAR);
     }
+
     public void saveSortAPI(String api) {
         sharedPreferences.edit().putString(AppConstants.SHAREDPREF_KEY_SORT_URL, api).apply();
     }

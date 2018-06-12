@@ -11,18 +11,16 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.navoki.megamovies.adapters.MovieListAdapter;
-import com.navoki.megamovies.callbacks.OnAdapterListener;
-import com.navoki.megamovies.models.MovieData;
 import com.navoki.megamovies.R;
+import com.navoki.megamovies.adapters.BookmarkListAdapter;
+import com.navoki.megamovies.callbacks.OnBookmarkAdapterListener;
+import com.navoki.megamovies.database.BookmarkViewModel;
+import com.navoki.megamovies.models.BookmarkData;
 import com.navoki.megamovies.utils.AppConstants;
-import com.navoki.megamovies.database.FavoriteViewModel;
-import com.navoki.megamovies.database.ListViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,12 +28,11 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class BookmarksActivity extends AppCompatActivity implements OnAdapterListener {
+public class BookmarksActivity extends AppCompatActivity implements OnBookmarkAdapterListener {
 
     @BindView(R.id.ryc_movie_list)
     RecyclerView rycMovieList;
     private Context context;
-    private ListViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,7 +41,6 @@ public class BookmarksActivity extends AppCompatActivity implements OnAdapterLis
 
         ButterKnife.bind(this);
         context = this;
-
         getSupportActionBar().setTitle(getString(R.string.bookmarks));
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -54,15 +50,12 @@ public class BookmarksActivity extends AppCompatActivity implements OnAdapterLis
     }
 
     private void setUpViewModel() {
-        FavoriteViewModel bookmarkListViewModel = ViewModelProviders.of((FragmentActivity) context).get(FavoriteViewModel.class);
-        bookmarkListViewModel.getFavListLiveData().observe(BookmarksActivity.this, new Observer<List<MovieData>>() {
+        BookmarkViewModel bookmarkListViewModel = ViewModelProviders.of((FragmentActivity) context).get(BookmarkViewModel.class);
+        bookmarkListViewModel.getFavListLiveData().observe(BookmarksActivity.this, new Observer<List<BookmarkData>>() {
             @Override
-            public void onChanged(@Nullable List<MovieData> movieDataList) {
-                MovieListAdapter movieListAdapter = new MovieListAdapter(context, new ArrayList<MovieData>(movieDataList));
-                rycMovieList.setAdapter(movieListAdapter);
-                Log.e("Book", movieDataList.size() + " book");
-                for (MovieData movieData : movieDataList)
-                    Log.e("Movie", movieData.getIsfavorite() + " " + movieData.getTitle());
+            public void onChanged(@Nullable List<BookmarkData> movieDataList) {
+                BookmarkListAdapter bookmarkListAdapter = new BookmarkListAdapter(context, new ArrayList<BookmarkData>(movieDataList));
+                rycMovieList.setAdapter(bookmarkListAdapter);
                 if (movieDataList.size() == 0)
                     Toast.makeText(context, getString(R.string.noDataFound), Toast.LENGTH_SHORT).show();
             }
@@ -70,15 +63,11 @@ public class BookmarksActivity extends AppCompatActivity implements OnAdapterLis
     }
 
     @Override
-    public void getNextPagingData() {
-    }
-
-    @Override
-    public void moveToDetailsScreen(ImageView imageView, MovieData movieData) {
+    public void moveToDetailsScreen(ImageView imageView, BookmarkData bookmarkData) {
 
         Intent intent = new Intent(BookmarksActivity.this, DetailsActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putParcelable(AppConstants.EXTRA_MOVIE_DATA, movieData);
+        bundle.putString(AppConstants.EXTRA_MOVIE_DATA, bookmarkData.getId());
         intent.putExtras(bundle);
         ActivityOptionsCompat options = ActivityOptionsCompat.
                 makeSceneTransitionAnimation(BookmarksActivity.this,

@@ -13,8 +13,8 @@ import android.widget.TextView;
 
 import com.navoki.megamovies.BuildConfig;
 import com.navoki.megamovies.R;
-import com.navoki.megamovies.callbacks.OnAdapterListener;
-import com.navoki.megamovies.models.MovieData;
+import com.navoki.megamovies.callbacks.OnBookmarkAdapterListener;
+import com.navoki.megamovies.models.BookmarkData;
 import com.squareup.picasso.Picasso;
 
 import java.text.ParseException;
@@ -28,11 +28,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class MovieListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class BookmarkListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private final ArrayList<MovieData> movieList;
+    private final ArrayList<BookmarkData> movieList;
     private final Context context;
-    private final OnAdapterListener adapterListener;
+    private final OnBookmarkAdapterListener adapterListener;
     private int lastPosition = -1;
 
     public class MovieHolder extends RecyclerView.ViewHolder {
@@ -53,10 +53,10 @@ public class MovieListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    public MovieListAdapter(Context context, ArrayList<MovieData> movieList) {
+    public BookmarkListAdapter(Context context, ArrayList<BookmarkData> movieList) {
         this.movieList = movieList;
         this.context = context;
-        adapterListener = (OnAdapterListener) context;
+        adapterListener = (OnBookmarkAdapterListener) context;
     }
 
     @Override
@@ -71,16 +71,16 @@ public class MovieListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
 
         final MovieHolder movieHolder = (MovieHolder) holder;
-        final MovieData movieData = movieList.get(position);
+        final BookmarkData bookmarkData = movieList.get(position);
 
-        movieHolder.tvTitle.setText(movieData.getTitle());
-        Picasso.get().load((BuildConfig.POSTER_BASE_URL + movieData.getPoster_path()).trim())
+        movieHolder.tvTitle.setText(bookmarkData.getTitle());
+        Picasso.get().load((BuildConfig.POSTER_BASE_URL + bookmarkData.getPoster_path()).trim())
                 .placeholder(R.drawable.placeholder_image)
                 .into(movieHolder.imgPoster);
 
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH);
         try {
-            Date date = simpleDateFormat.parse(movieData.getRelease_date());
+            Date date = simpleDateFormat.parse(bookmarkData.getRelease_date());
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(date);
             movieHolder.tvYear.setText(String.valueOf(calendar.get(Calendar.YEAR)));
@@ -92,11 +92,9 @@ public class MovieListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         movieHolder.imgPoster.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                adapterListener.moveToDetailsScreen(movieHolder.imgPoster, movieData);
+                adapterListener.moveToDetailsScreen(movieHolder.imgPoster, bookmarkData);
             }
         });
-        if (position >= movieList.size() - 2)
-            adapterListener.getNextPagingData();
 
         if (position > lastPosition) {
 

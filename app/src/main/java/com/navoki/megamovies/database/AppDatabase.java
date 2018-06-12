@@ -5,14 +5,14 @@ import android.arch.persistence.room.Room;
 import android.arch.persistence.room.RoomDatabase;
 import android.content.Context;
 
-import com.navoki.megamovies.models.FavoriteData;
+import com.navoki.megamovies.models.BookmarkData;
 import com.navoki.megamovies.models.MovieData;
 
 /**
  * Created by Shivam Srivastava on 6/8/2018.
  */
-@Database(entities = {MovieData.class, FavoriteData.class}, version = 1, exportSchema = false)
- public abstract class AppDatabase extends RoomDatabase {
+@Database(entities = {MovieData.class, BookmarkData.class}, version = 1, exportSchema = false)
+public abstract class AppDatabase extends RoomDatabase {
 
     private static final Object LOCK = new Object();
     private static final String DATABASE_NAME = "moviedb";
@@ -28,6 +28,8 @@ import com.navoki.megamovies.models.MovieData;
         }
         return instance;
     }
+
     public abstract MovieDao movieDao();
-    public abstract FavoriteDao favoriteDao();
+
+    public abstract BookmarkDao favoriteDao();
 }

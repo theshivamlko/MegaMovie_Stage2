@@ -17,7 +17,6 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -34,19 +33,19 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import com.navoki.megamovies.BuildConfig;
+import com.navoki.megamovies.R;
 import com.navoki.megamovies.adapters.CastListAdapter;
 import com.navoki.megamovies.adapters.ReviewsListAdapter;
 import com.navoki.megamovies.adapters.TrailerPagerAdapter;
-import com.navoki.megamovies.BuildConfig;
 import com.navoki.megamovies.database.AppDatabase;
 import com.navoki.megamovies.database.MovieViewModel;
 import com.navoki.megamovies.database.MovieViewModelFactory;
+import com.navoki.megamovies.models.BookmarkData;
 import com.navoki.megamovies.models.CastModel;
-import com.navoki.megamovies.models.FavoriteData;
 import com.navoki.megamovies.models.GenreModel;
 import com.navoki.megamovies.models.MovieData;
 import com.navoki.megamovies.models.ReviewModel;
-import com.navoki.megamovies.R;
 import com.navoki.megamovies.utils.AppConstants;
 import com.navoki.megamovies.utils.AppExecutors;
 import com.navoki.megamovies.utils.Global;
@@ -59,7 +58,6 @@ import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -112,7 +110,6 @@ public class DetailsActivity extends AppCompatActivity {
     private MenuItem bookmarkMenuItem;
     private MovieViewModel viewModel;
     private boolean firsTime = true;
-    //  int uid;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,19 +129,25 @@ public class DetailsActivity extends AppCompatActivity {
         progressDialog.setCancelable(false);
         castList.setNestedScrollingEnabled(false);
 
+        movieData = new MovieData();
         if (getIntent() != null) {
             Intent intent = getIntent();
-            movieData = (MovieData) intent.getExtras().get(AppConstants.EXTRA_MOVIE_DATA);
-            //        Log.e("ID", movieData.getUid() + "==");
-            //   setUpViewModel();
+            movieData.setId(intent.getExtras().getString(AppConstants.EXTRA_MOVIE_DATA));
         }
         GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
         castList.setLayoutManager(gridLayoutManager);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         reviewList.setLayoutManager(linearLayoutManager);
-
         setUpViewModel();
 
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // set icon after option is being created in onCreateOptionMenu()
+                checkBookmarkIcon();
+            }
+        }, 800);
     }
 
 
@@ -205,20 +208,23 @@ public class DetailsActivity extends AppCompatActivity {
 
     @OnClick(R.id.floatingActionButton)
     void shareLink() {
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(getString(R.string.checkout));
-        stringBuilder.append(" ");
-        stringBuilder.append(movieData.getTitle());
-        stringBuilder.append("\n" + movieData.getTrailer());
 
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, stringBuilder.toString());
-        sendIntent.setType(getString(R.string.intent_type));
-        if (sendIntent.resolveActivity(getPackageManager()) != null)
-            startActivity(Intent.createChooser(sendIntent, getString(R.string.share_trailer)));
-        else
-            Toast.makeText(context, getString(R.string.no_app_found), Toast.LENGTH_SHORT).show();
+        if (movieData.getTrailer() != null) {
+            StringBuilder stringBuilder = new StringBuilder();
+            stringBuilder.append(getString(R.string.checkout));
+            stringBuilder.append(" ");
+            stringBuilder.append(movieData.getTitle());
+            stringBuilder.append("\n" + movieData.getTrailer());
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, stringBuilder.toString());
+            sendIntent.setType(getString(R.string.intent_type));
+            if (sendIntent.resolveActivity(getPackageManager()) != null)
+                startActivity(Intent.createChooser(sendIntent, getString(R.string.share_trailer)));
+            else
+                Toast.makeText(context, getString(R.string.no_app_found), Toast.LENGTH_SHORT).show();
+        } else
+            Toast.makeText(context, getString(R.string.no_link_found), Toast.LENGTH_SHORT).show();
     }
 
     /*
@@ -236,10 +242,7 @@ public class DetailsActivity extends AppCompatActivity {
                     public void onResponse(String response) {
                         Gson gson = new Gson();
                         movieData = gson.fromJson(response, MovieData.class);
-                        //    movieData.setUid(uid);
                         viewModel.setMovieLiveData(movieData);
-                        /* if (null == movieData.getCastList())
-                            getMovieCast();*/
                         progressDialog.dismiss();
                     }
                 }, new Response.ErrorListener() {
@@ -249,7 +252,6 @@ public class DetailsActivity extends AppCompatActivity {
                 Util.showError(error, context);
             }
         });
-
         global.addToRequestQueue(stringRequest);
     }
 
@@ -270,6 +272,7 @@ public class DetailsActivity extends AppCompatActivity {
                             JSONObject object = new JSONObject(response);
                             JSONArray jsonArray = object.getJSONArray(getString(R.string.key_results));
                             if (jsonArray.length() > 0) {
+                                videoKey = jsonArray.getJSONObject(0).getString(getString(R.string.key_key));
                                 movieData.setTrailer(BuildConfig.YOUTUBE_URL + videoKey);
                                 ArrayList<String> youtubeKeyList = new ArrayList<>();
                                 int i = 0;
@@ -291,9 +294,7 @@ public class DetailsActivity extends AppCompatActivity {
                 Util.showError(error, context);
             }
         });
-
         global.addToRequestQueue(stringRequest);
-
     }
 
 
@@ -414,28 +415,20 @@ public class DetailsActivity extends AppCompatActivity {
                     view.setScaleY(scaleFactor);
                 }
             }
-
         });
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_details, menu);
-        bookmarkMenuItem = menu.findItem(R.id.bookmark);
-        return true;
     }
 
     private void toggleBookmark() {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                Log.e("Details", "setBookmark " + isFavorite + " " + movieData.getId());
                 if (isFavorite)
                     appDatabase.favoriteDao().delete(movieData.getId());
                 else {
-                    FavoriteData favoriteData = new FavoriteData();
-                    favoriteData.setId(movieData.getId());
-                    appDatabase.favoriteDao().insert(favoriteData);
+                    Gson gson = new Gson();
+                    String json = gson.toJson(movieData);
+                    BookmarkData bookmarkData = gson.fromJson(json, BookmarkData.class);
+                    appDatabase.favoriteDao().insert(bookmarkData);
                 }
                 isFavorite = !isFavorite;
                 runOnUiThread(new Runnable() {
@@ -448,15 +441,16 @@ public class DetailsActivity extends AppCompatActivity {
         });
     }
 
+
     private void checkBookmarkIcon() {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
-                Log.e("CHEKC ID",movieData.getId()+" "+movieData.getUid());
-                final FavoriteData data = appDatabase.favoriteDao().checkFav(movieData.getId());
+                final BookmarkData data = appDatabase.favoriteDao().checkFav(movieData.getId());
                 runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
+
                         if (data != null) {
                             bookmarkMenuItem.setIcon(R.drawable.ic_star_full);
                             isFavorite = true;
@@ -464,13 +458,11 @@ public class DetailsActivity extends AppCompatActivity {
                             bookmarkMenuItem.setIcon(R.drawable.ic_star_border);
                     }
                 });
-
             }
         });
     }
 
     private void setUpViewModel() {
-        Log.e("Movie", movieData.getId() + "");
         MovieViewModelFactory factory = new MovieViewModelFactory(appDatabase, movieData.getId());
         viewModel = ViewModelProviders.of((FragmentActivity) context, factory).get(MovieViewModel.class);
         viewModel.getMovieLiveData().observe(DetailsActivity.this, new Observer<MovieData>() {
@@ -479,8 +471,6 @@ public class DetailsActivity extends AppCompatActivity {
 
                 if (null != data) {
                     DetailsActivity.this.movieData = data;
-                    Log.e("MSGFav1", movieData.getIsfavorite() + " " + movieData.getId());
-                    Log.e("MSGFav2", movieData.getCastList() + "--");
                     if (firsTime)
                         populateUI();
                     if (movieData.getTrailerList() == null)
@@ -497,18 +487,16 @@ public class DetailsActivity extends AppCompatActivity {
                         getReviews();
                     else
                         populateReviews();
-
-                    Handler handler = new Handler();
-                    handler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            // after option is being created in onCreateOptionMenu()
-                            checkBookmarkIcon();
-                        }
-                    }, 1000);
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_details, menu);
+        bookmarkMenuItem = menu.findItem(R.id.bookmark);
+        return true;
     }
 
     @Override
@@ -516,6 +504,8 @@ public class DetailsActivity extends AppCompatActivity {
         int id = item.getItemId();
         if (id == R.id.bookmark) {
             toggleBookmark();
+        } else if (id == android.R.id.home) {
+            supportFinishAfterTransition();
         }
         return true;
     }

@@ -40,6 +40,7 @@
     <string name="cast">Cast</string>
     <string name="description">Description</string>
     <string name="no_app_found">No app found to handle video</string>
+    <string name="no_link_found">No link of video found</string>
     <string name="trailers">Trailers</string>
     <string name="reviews">Reviews</string>
     <string name="loading">Loading&#8230;</string>

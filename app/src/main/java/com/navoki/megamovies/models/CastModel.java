@@ -4,7 +4,7 @@ package com.navoki.megamovies.models;
  * Created by Shivam Srivastava on 6/6/2018.
  */
 public class CastModel {
-    private String character,name,profile_path;
+    private String character, name, profile_path;
 
     public String getProfile_path() {
         return profile_path;

@@ -8,10 +8,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.navoki.megamovies.models.ReviewModel;
 import com.navoki.megamovies.R;
+import com.navoki.megamovies.models.ReviewModel;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -24,7 +23,7 @@ public class ReviewsListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHo
     private final List<ReviewModel> reviewList;
     private final Context context;
     private final int[] color = {R.color.colorBlue, R.color.colorPrimaryDark, R.color.colorPrimary, R.color.colorGreen,
-            R.color.colorRed,R.color.colorAccent};
+            R.color.colorRed, R.color.colorAccent};
     private final Random random = new Random();
 
     static class ReviewHolder extends RecyclerView.ViewHolder {

@@ -11,9 +11,10 @@ import com.navoki.megamovies.models.MovieData;
 public class MovieViewModel extends ViewModel {
     private LiveData<MovieData> movieLiveData;
     private AppDatabase appDatabase;
+
     public MovieViewModel(AppDatabase appDatabase, String id) {
-        this.appDatabase=appDatabase;
-        movieLiveData=appDatabase.movieDao().getMovie(id);
+        this.appDatabase = appDatabase;
+        movieLiveData = appDatabase.movieDao().getMovie(id);
     }
 
     public LiveData<MovieData> getMovieLiveData() {
@@ -21,5 +22,6 @@ public class MovieViewModel extends ViewModel {
     }
 
     public void setMovieLiveData(MovieData movieData) {
-        appDatabase.movieDao().updateMovie(movieData);    }
+        appDatabase.movieDao().updateMovie(movieData);
+    }
 }

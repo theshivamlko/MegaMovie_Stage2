@@ -5,6 +5,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -15,7 +16,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -54,6 +54,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
 
     @BindView(R.id.ryc_movie_list)
     RecyclerView rycMovieList;
+
     private Context context;
     private Global global;
     private int paging = 1;
@@ -79,7 +80,11 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         progressDialog.setMessage(getString(R.string.loading));
         progressDialog.setCancelable(false);
 
-        GridLayoutManager gridLayoutManager = new GridLayoutManager(context, 3);
+        int spanCount = 3;
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            spanCount = 4;
+        }
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(context, spanCount);
         rycMovieList.setLayoutManager(gridLayoutManager);
 
         movieList = new ArrayList<>();
@@ -93,7 +98,6 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
                 int lastVisibleItemPosition = ((LinearLayoutManager) rycMovieList.getLayoutManager())
                         .findLastCompletelyVisibleItemPosition();
-                Log.e("Pafi", paging + " " + lastVisibleItemPosition + " " + (movieListAdapter.getItemCount()));
                 if (lastVisibleItemPosition == movieListAdapter.getItemCount() - 1) {
                     ++paging;
                     getMovieList();
@@ -102,14 +106,6 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         });
 
         setUpViewModel();
-        if (Util.checkConnection(context)) {
-            paging = 1;
-            getMovieList();
-        }
-        else
-            Util.showError(new NetworkError(), context);
-
-
     }
 
 
@@ -122,7 +118,6 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         Uri.Builder params = new Uri.Builder();
         params.appendQueryParameter(getString(R.string.key_api_key), BuildConfig.API_KEY);
         params.appendQueryParameter(getString(R.string.key_page_no), String.valueOf(paging));
-        Log.e("URL", mainURL + params);
 
         stringRequest = new StringRequest(Request.Method.GET, mainURL + params, new Response.Listener<String>() {
             @Override
@@ -130,7 +125,6 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
                 try {
                     JSONObject jsonObject = new JSONObject(response);
                     JSONArray dataArray = jsonObject.getJSONArray(getString(R.string.key_results));
-                    Log.e("Repsonse", dataArray.toString());
                     if (dataArray.length() > 0) {
                         if (paging == 1)
                             appDatabase.movieDao().deleteAll(sortby);
@@ -142,10 +136,8 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
                             movieData.setSortby(sortby);
                             list.add(movieData);
                         }
-                        Log.e("Repsonse", "===" + list.size() + " " + sortby);
-
                         appDatabase.movieDao().insertAll(list);
-                     //   viewModel.setMovieLiveList(list);
+                        viewModel.setMovieLiveList(list);
 
                     } else
                         Toast.makeText(context, getString(R.string.somethingGoneWrong), Toast.LENGTH_SHORT).show();
@@ -172,13 +164,11 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         MovieListViewFactory factory = new MovieListViewFactory(appDatabase, sortby);
         viewModel = ViewModelProviders.of((FragmentActivity) context, factory).get(MovieListViewModel.class);
         viewModel.getMovieLiveData().observe(MovieListActivity.this, observer);
-
     }
 
     Observer<List<MovieData>> observer = new Observer<List<MovieData>>() {
         @Override
         public void onChanged(@Nullable List<MovieData> movieDataList) {
-            Log.e("List", movieList.size() + "--" + (movieDataList.size() - 1) + " " + sortby);
             populateList(movieDataList);
         }
     };
@@ -187,13 +177,16 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         if (movieDataList.size() != 0) {
             movieList.addAll(movieDataList.subList(movieList.size(), movieDataList.size() - 1));
             if (movieListAdapter == null) {
-                //  viewModel.getMovieLiveData().removeObserver(observer);
                 movieListAdapter = new MovieListAdapter(context, movieList);
                 rycMovieList.setAdapter(movieListAdapter);
             } else
                 movieListAdapter.notifyDataSetChanged();
-            global.savePaging(AppConstants.SHAREDPREF_KEY_PAGE, paging);
-        }
+            global.savePaging(paging);
+        } else if (Util.checkConnection(context)) {
+
+            getMovieList();
+        } else
+            Util.showError(new NetworkError(), context);
     }
 
     private void reset() {
@@ -211,10 +204,9 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
 
     @Override
     public void moveToDetailsScreen(ImageView imageView, MovieData movieData) {
-
         Intent intent = new Intent(MovieListActivity.this, DetailsActivity.class);
         Bundle bundle = new Bundle();
-        bundle.putParcelable(AppConstants.EXTRA_MOVIE_DATA, movieData);
+        bundle.putString(AppConstants.EXTRA_MOVIE_DATA, movieData.getId());
         intent.putExtras(bundle);
         ActivityOptionsCompat options = ActivityOptionsCompat.
                 makeSceneTransitionAnimation(MovieListActivity.this,
@@ -242,16 +234,11 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             global.saveSortBy(sortby);
             movieList = new ArrayList<>();
             movieListAdapter = null;
-            //  global.saveSortBy(AppConstants.SHAREDPREF_VALUE_POPULAR);
             if (Util.checkConnection(context)) {
                 viewModel.clear();
-                getMovieList();
             } else {
-                 viewModel.setNewMovieList(appDatabase.movieDao().getMovieTaskList(sortby));
+                viewModel.setNewMovieList(appDatabase.movieDao().getMovieTaskList(sortby));
             }
-            /*else {
-                populateList(appDatabase.movieDao().getMovieTaskList(AppConstants.SHAREDPREF_VALUE_POPULAR));
-            }*/
 
         } else if (id == R.id.high_rate) {
             mainURL = AppConstants.API_MOVIE_HIGH_RATE_LIST;
@@ -261,12 +248,10 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             paging = 1;
             movieList = new ArrayList<>();
             movieListAdapter = null;
-            //global.saveSortBy(AppConstants.SHAREDPREF_VALUE_RATING);
             if (Util.checkConnection(context)) {
                 viewModel.clear();
-                getMovieList();
             } else {
-                 viewModel.setNewMovieList(appDatabase.movieDao().getMovieTaskList(sortby));
+                viewModel.setNewMovieList(appDatabase.movieDao().getMovieTaskList(sortby));
             }
 
         } else if (id == R.id.favorites) {

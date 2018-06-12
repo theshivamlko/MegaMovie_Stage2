@@ -14,10 +14,10 @@ import com.navoki.megamovies.database.TrailerConvertor;
 import java.util.List;
 
 /**
- * Created by Shivam Srivastava on 6/5/2018.
+ * Created by Shivam Srivastava on 6/11/2018.
  */
-@Entity(tableName = "movies")
-public class MovieData {
+@Entity(tableName = "bookmarks")
+public class BookmarkData {
 
     @PrimaryKey(autoGenerate = true)
     @NonNull
@@ -47,7 +47,7 @@ public class MovieData {
     @TypeConverters(TrailerConvertor.class)
     private List<String> trailerList;
 
-    public MovieData() {
+    public BookmarkData() {
     }
 
     public int getUid() {
@@ -170,6 +170,14 @@ public class MovieData {
         this.original_language = original_language;
     }
 
+ /*   public int getIsfavorite() {
+        return isfavorite;
+    }
+
+    public void setIsfavorite(int isfavorite) {
+        this.isfavorite = isfavorite;
+    }*/
+
     public String getTrailer() {
         return trailer;
     }
@@ -185,6 +193,4 @@ public class MovieData {
     public void setCastList(List<CastModel> castList) {
         this.castList = castList;
     }
-
-
 }

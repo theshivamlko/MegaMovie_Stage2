@@ -29,6 +29,4 @@ public class AppConstants {
     public static final String SHAREDPREF_VALUE_POPULAR = "popular";
     public static final String SHAREDPREF_VALUE_RATING = "rating";
 
-//Avengers: Infinity War 0 299536
-    //Black Panther 0 284054
 }

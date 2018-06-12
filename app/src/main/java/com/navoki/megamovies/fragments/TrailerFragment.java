@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -53,7 +52,6 @@ public class TrailerFragment extends Fragment {
 
         videoKey = getArguments().getString(ARG_KEY);
 
-       // Log.e("Url",BuildConfig.YOUTUBE_TUMBNAIL_URL + videoKey + getString(R.string.param_video_image_ext));
         Picasso.get().load(BuildConfig.YOUTUBE_TUMBNAIL_URL + videoKey + getString(R.string.param_video_image_ext)).resize(300,200)
                 .placeholder(R.drawable.placeholder_banner).into(videoBanner);
 
