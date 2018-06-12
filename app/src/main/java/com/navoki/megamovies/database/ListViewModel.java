@@ -26,7 +26,7 @@ public class ListViewModel extends AndroidViewModel {
     }
 
     public LiveData<List<MovieData>> getListLiveData(String sortby) {
-        listLiveData = appDatabase.movieDao().getMovieTaskList(sortby);
+        //listLiveData = appDatabase.movieDao().getMovieTaskList(sortby);
         return listLiveData;
     }
 

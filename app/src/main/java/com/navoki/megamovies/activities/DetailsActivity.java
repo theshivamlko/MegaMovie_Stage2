@@ -452,6 +452,7 @@ public class DetailsActivity extends AppCompatActivity {
         AppExecutors.getInstance().diskIO().execute(new Runnable() {
             @Override
             public void run() {
+                Log.e("CHEKC ID",movieData.getId()+" "+movieData.getUid());
                 final FavoriteData data = appDatabase.favoriteDao().checkFav(movieData.getId());
                 runOnUiThread(new Runnable() {
                     @Override

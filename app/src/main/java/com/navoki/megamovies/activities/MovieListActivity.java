@@ -22,6 +22,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.NetworkError;
 import com.android.volley.Request;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
@@ -100,10 +101,15 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             }
         });
 
-        if (paging == 1 && Util.checkConnection(context))
+        setUpViewModel();
+        if (Util.checkConnection(context)) {
+            paging = 1;
             getMovieList();
+        }
         else
-            setUpViewModel();
+            Util.showError(new NetworkError(), context);
+
+
     }
 
 
@@ -126,7 +132,9 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
                     JSONArray dataArray = jsonObject.getJSONArray(getString(R.string.key_results));
                     Log.e("Repsonse", dataArray.toString());
                     if (dataArray.length() > 0) {
-                        setUpViewModel();
+                        if (paging == 1)
+                            appDatabase.movieDao().deleteAll(sortby);
+
                         Gson gson = new Gson();
                         ArrayList<MovieData> list = new ArrayList<>();
                         for (int i = 0; i < dataArray.length(); i++) {
@@ -137,6 +145,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
                         Log.e("Repsonse", "===" + list.size() + " " + sortby);
 
                         appDatabase.movieDao().insertAll(list);
+                     //   viewModel.setMovieLiveList(list);
 
                     } else
                         Toast.makeText(context, getString(R.string.somethingGoneWrong), Toast.LENGTH_SHORT).show();
@@ -162,7 +171,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
     private void setUpViewModel() {
         MovieListViewFactory factory = new MovieListViewFactory(appDatabase, sortby);
         viewModel = ViewModelProviders.of((FragmentActivity) context, factory).get(MovieListViewModel.class);
-        viewModel.getMovieLiveData().observeForever(observer);
+        viewModel.getMovieLiveData().observe(MovieListActivity.this, observer);
 
     }
 
@@ -178,7 +187,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         if (movieDataList.size() != 0) {
             movieList.addAll(movieDataList.subList(movieList.size(), movieDataList.size() - 1));
             if (movieListAdapter == null) {
-                viewModel.getMovieLiveData().removeObserver(observer);
+                //  viewModel.getMovieLiveData().removeObserver(observer);
                 movieListAdapter = new MovieListAdapter(context, movieList);
                 rycMovieList.setAdapter(movieListAdapter);
             } else
@@ -233,12 +242,16 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             global.saveSortBy(sortby);
             movieList = new ArrayList<>();
             movieListAdapter = null;
-            global.saveSortBy(AppConstants.SHAREDPREF_VALUE_POPULAR);
+            //  global.saveSortBy(AppConstants.SHAREDPREF_VALUE_POPULAR);
             if (Util.checkConnection(context)) {
+                viewModel.clear();
                 getMovieList();
             } else {
-                populateList(appDatabase.movieDao().getMovieTaskList(AppConstants.SHAREDPREF_VALUE_POPULAR).getValue());
+                 viewModel.setNewMovieList(appDatabase.movieDao().getMovieTaskList(sortby));
             }
+            /*else {
+                populateList(appDatabase.movieDao().getMovieTaskList(AppConstants.SHAREDPREF_VALUE_POPULAR));
+            }*/
 
         } else if (id == R.id.high_rate) {
             mainURL = AppConstants.API_MOVIE_HIGH_RATE_LIST;
@@ -248,11 +261,14 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
             paging = 1;
             movieList = new ArrayList<>();
             movieListAdapter = null;
-            global.saveSortBy(AppConstants.SHAREDPREF_VALUE_RATING);
+            //global.saveSortBy(AppConstants.SHAREDPREF_VALUE_RATING);
             if (Util.checkConnection(context)) {
+                viewModel.clear();
                 getMovieList();
-            } else
-                populateList(appDatabase.movieDao().getMovieTaskList(AppConstants.SHAREDPREF_VALUE_RATING).getValue());
+            } else {
+                 viewModel.setNewMovieList(appDatabase.movieDao().getMovieTaskList(sortby));
+            }
+
         } else if (id == R.id.favorites) {
             Util.finishEntryAnimation(context, new Intent(context, BookmarksActivity.class));
         }

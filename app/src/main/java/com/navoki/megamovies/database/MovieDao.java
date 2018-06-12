@@ -21,7 +21,7 @@ public interface MovieDao {
     List<MovieData> getAll(String sortby);
 
     @Query("SELECT * FROM movies WHERE sortby=:sortby")
-    LiveData<List<MovieData>> getMovieTaskList(String sortby);
+    List<MovieData> getMovieTaskList(String sortby);
 
     @Query("SELECT * FROM movies WHERE isfavorite=1")
     LiveData<List<MovieData>> getFavoriteList();
