@@ -142,16 +142,7 @@ public class DetailsActivity extends AppCompatActivity {
         castList.setLayoutManager(gridLayoutManager);
         LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
         reviewList.setLayoutManager(linearLayoutManager);
-/*
 
-        if (!Util.checkConnection(context)) {
-            Toast.makeText(context, getString(R.string.error_network), Toast.LENGTH_SHORT).show();
-            setUpViewModel();
-        } else {
-            designViewPager();
-            getMovieDetails();
-        }
-*/
         setUpViewModel();
 
     }

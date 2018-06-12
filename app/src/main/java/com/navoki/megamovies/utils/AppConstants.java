@@ -23,7 +23,8 @@ public class AppConstants {
 
     /* SharedPreference*/
     public static final String SHAREDPREF_NAME = "appData";
-    public static final String SHAREDPREF_KEY_SORT_URL = "sortBy";
+    public static final String SHAREDPREF_KEY_SORT_KEY = "sortBy";
+    public static final String SHAREDPREF_KEY_SORT_URL = "mainUrl";
     public static final String SHAREDPREF_KEY_PAGE = "page";
     public static final String SHAREDPREF_VALUE_POPULAR = "popular";
     public static final String SHAREDPREF_VALUE_RATING = "rating";

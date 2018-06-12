@@ -17,16 +17,16 @@ import java.util.List;
  */
 @Dao
 public interface MovieDao {
-    @Query("SELECT * FROM movies  where sortby=:sortby")
+    @Query("SELECT * FROM movies WHERE sortby=:sortby")
     List<MovieData> getAll(String sortby);
 
-    @Query("SELECT * FROM movies where  sortby=:sortby")
+    @Query("SELECT * FROM movies WHERE sortby=:sortby")
     LiveData<List<MovieData>> getMovieTaskList(String sortby);
 
-    @Query("SELECT * FROM movies where isfavorite=1")
+    @Query("SELECT * FROM movies WHERE isfavorite=1")
     LiveData<List<MovieData>> getFavoriteList();
 
-    @Query("SELECT * FROM movies where id = :id")
+    @Query("SELECT * FROM movies WHERE id = :id")
     LiveData<MovieData> getMovie(String id);
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
@@ -35,6 +35,6 @@ public interface MovieDao {
     @Insert
     void insertAll(List<MovieData> movieDataList);
 
-    @Query("DELETE FROM movies where sortby=:sortby")
+    @Query("DELETE FROM movies WHERE sortby=:sortby")
     void deleteAll(String sortby);
 }

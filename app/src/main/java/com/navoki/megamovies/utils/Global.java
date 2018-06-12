@@ -58,11 +58,19 @@ public class Global extends Application {
     }
 
     public void saveSortBy(String sort) {
-        sharedPreferences.edit().putString(AppConstants.SHAREDPREF_KEY_SORT_URL, sort).apply();
+        sharedPreferences.edit().putString(AppConstants.SHAREDPREF_KEY_SORT_KEY, sort).apply();
     }
 
     public String getSortBy() {
-        return sharedPreferences.getString(AppConstants.SHAREDPREF_KEY_SORT_URL,
+        return sharedPreferences.getString(AppConstants.SHAREDPREF_KEY_SORT_KEY,
                 AppConstants.SHAREDPREF_VALUE_POPULAR);
+    }
+    public void saveSortAPI(String api) {
+        sharedPreferences.edit().putString(AppConstants.SHAREDPREF_KEY_SORT_URL, api).apply();
+    }
+
+    public String getSortAPI() {
+        return sharedPreferences.getString(AppConstants.SHAREDPREF_KEY_SORT_URL,
+                AppConstants.API_MOVIE_POPULAR_LIST);
     }
 }
