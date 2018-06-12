@@ -68,7 +68,7 @@ public class BookmarkListAdapter extends RecyclerView.Adapter<RecyclerView.ViewH
 
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder,int position) {
 
         final MovieHolder movieHolder = (MovieHolder) holder;
         final BookmarkData bookmarkData = movieList.get(position);

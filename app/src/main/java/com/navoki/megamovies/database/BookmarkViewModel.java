@@ -15,11 +15,10 @@ import java.util.List;
 public class BookmarkViewModel extends AndroidViewModel {
 
     private LiveData<List<BookmarkData>> listLiveData;
-    private AppDatabase appDatabase;
 
     public BookmarkViewModel(@NonNull Application application) {
         super(application);
-        appDatabase = AppDatabase.getInstance(this.getApplication());
+        AppDatabase appDatabase = AppDatabase.getInstance(this.getApplication());
         listLiveData = appDatabase.favoriteDao().getFavList();
     }
 

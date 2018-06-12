@@ -54,7 +54,7 @@ public class BookmarksActivity extends AppCompatActivity implements OnBookmarkAd
         bookmarkListViewModel.getFavListLiveData().observe(BookmarksActivity.this, new Observer<List<BookmarkData>>() {
             @Override
             public void onChanged(@Nullable List<BookmarkData> movieDataList) {
-                BookmarkListAdapter bookmarkListAdapter = new BookmarkListAdapter(context, new ArrayList<BookmarkData>(movieDataList));
+                BookmarkListAdapter bookmarkListAdapter = new BookmarkListAdapter(context, new ArrayList<>(movieDataList));
                 rycMovieList.setAdapter(bookmarkListAdapter);
                 if (movieDataList.size() == 0)
                     Toast.makeText(context, getString(R.string.noDataFound), Toast.LENGTH_SHORT).show();

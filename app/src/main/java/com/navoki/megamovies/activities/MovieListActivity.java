@@ -63,7 +63,6 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
     private ProgressDialog progressDialog;
     private String mainURL;
     private MovieListViewModel viewModel;
-    private StringRequest stringRequest = null;
     private String sortby = AppConstants.SHAREDPREF_VALUE_POPULAR;
     private AppDatabase appDatabase = null;
 
@@ -119,7 +118,7 @@ public class MovieListActivity extends AppCompatActivity implements OnAdapterLis
         params.appendQueryParameter(getString(R.string.key_api_key), BuildConfig.API_KEY);
         params.appendQueryParameter(getString(R.string.key_page_no), String.valueOf(paging));
 
-        stringRequest = new StringRequest(Request.Method.GET, mainURL + params, new Response.Listener<String>() {
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, mainURL + params, new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
                 try {

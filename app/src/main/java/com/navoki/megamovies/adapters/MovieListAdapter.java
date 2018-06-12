@@ -68,7 +68,7 @@ public class MovieListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
 
     @Override
-    public void onBindViewHolder(final RecyclerView.ViewHolder holder, final int position) {
+    public void onBindViewHolder(final RecyclerView.ViewHolder holder,int position) {
 
         final MovieHolder movieHolder = (MovieHolder) holder;
         final MovieData movieData = movieList.get(position);

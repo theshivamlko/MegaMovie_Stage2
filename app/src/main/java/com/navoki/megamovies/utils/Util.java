@@ -54,11 +54,9 @@ public class Util {
         final ConnectivityManager connectivityManager =
                 ((ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE));
 
-        if (connectivityManager.getActiveNetworkInfo() != null) {
-            return connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected() ||
-                    connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnected();
-        }
+        return connectivityManager.getActiveNetworkInfo() != null &&
+                (connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI).isConnected() ||
+                        connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_MOBILE).isConnected());
 
-        return false;
     }
 }

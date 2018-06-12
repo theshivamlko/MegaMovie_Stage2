@@ -1,16 +1,11 @@
 package com.navoki.megamovies.utils;
 
-/**
- * Created by Shivam Srivastava on 6/8/2018.
- */
-
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 
 public class AppExecutors {
 

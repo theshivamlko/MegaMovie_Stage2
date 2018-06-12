@@ -14,11 +14,8 @@ import java.util.List;
  */
 public class MovieListViewModel extends ViewModel {
     private MutableLiveData<List<MovieData>> moveList = new MutableLiveData<>();
-    private AppDatabase appDatabase;
-    private String sortBy;
 
     public MovieListViewModel(AppDatabase appDatabase, String sortBy) {
-        this.appDatabase = appDatabase;
         moveList.postValue(appDatabase.movieDao().getMovieTaskList(sortBy));
     }
 

@@ -104,7 +104,6 @@ public class DetailsActivity extends AppCompatActivity {
     private Global global;
     private String videoKey;
     private ProgressDialog progressDialog;
-    private TrailerPagerAdapter sectionsPagerAdapter;
     private AppDatabase appDatabase;
     private boolean isFavorite;
     private MenuItem bookmarkMenuItem;
@@ -378,14 +377,14 @@ public class DetailsActivity extends AppCompatActivity {
 
     private void populateCastList() {
         CastListAdapter castListAdapter = new CastListAdapter(context,
-                new ArrayList<CastModel>(movieData.getCastList()));
+                new ArrayList<>(movieData.getCastList()));
         castList.setAdapter(castListAdapter);
     }
 
     private void populateViewPager() {
         designViewPager();
         videoKey = movieData.getTrailerList().get(0);
-        sectionsPagerAdapter = new TrailerPagerAdapter(getSupportFragmentManager(), movieData.getTrailerList());
+        TrailerPagerAdapter sectionsPagerAdapter = new TrailerPagerAdapter(getSupportFragmentManager(), movieData.getTrailerList());
         trailerPager.setAdapter(sectionsPagerAdapter);
     }
 
